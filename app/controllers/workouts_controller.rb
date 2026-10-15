@@ -2,14 +2,13 @@
 
 class WorkoutsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_workout, only: %i[show edit update destroy]
 
   def index
-    @workouts = current_user&.workouts
+    @workouts = current_user.workouts.order(date: :desc)
   end
 
-  def show
-    @workout = current_user.workouts.find_by_id(params[:id])
-  end
+  def show; end
 
   def new
     @workout = current_user.workouts.build
@@ -20,30 +19,30 @@ class WorkoutsController < ApplicationController
     if @workout.save
       redirect_to @workout, notice: 'Training was created successfully.'
     else
-      render 'new'
+      render :new, status: :unprocessable_entity
     end
   end
 
-  def edit
-    @workout = current_user.workouts.find_by_id(params[:id])
-  end
+  def edit; end
 
   def update
-    @workout = current_user.workouts.find_by_id(params[:id])
     if @workout.update(workout_params)
       redirect_to @workout, notice: 'Training updated successfully.'
     else
-      render 'edit'
+      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
-    @workout = current_user.workouts.find_by_id(params[:id])
     @workout.destroy
     redirect_to workouts_path, notice: 'Training deleted successfully.'
   end
 
   private
+
+  def set_workout
+    @workout = current_user.workouts.find(params[:id])
+  end
 
   def workout_params
     params.require(:workout).permit(:name, :date)
