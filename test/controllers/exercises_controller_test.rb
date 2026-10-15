@@ -14,16 +14,32 @@ class ExercisesControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{exercise_path(exercises(:two))}']", count: 0
   end
 
-  test "cannot view or modify another user's exercise" do
+  test "cannot view another user's exercise" do
+    assert_raises(ActiveRecord::RecordNotFound) do
+      get exercise_path(exercises(:two))
+    end
+  end
+
+  test "cannot modify another user's exercise" do
     other = exercises(:two)
 
     assert_raises(ActiveRecord::RecordNotFound) do
-      get exercise_path(other)
-    end
-    assert_raises(ActiveRecord::RecordNotFound) do
       patch exercise_path(other), params: { exercise: { name: "Changed" } }
     end
+
     assert_equal "Pull-up", other.reload.name
+  end
+
+  test "cannot delete another user's exercise" do
+    other = exercises(:two)
+
+    assert_no_difference "Exercise.count" do
+      assert_raises(ActiveRecord::RecordNotFound) do
+        delete exercise_path(other)
+      end
+    end
+
+    assert other.reload.persisted?
   end
 
   test "legacy exercises are visible but read only" do
