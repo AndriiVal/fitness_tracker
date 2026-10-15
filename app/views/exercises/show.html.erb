@@ -1,4 +1,8 @@
 <h3>Exercise details</h3>
 <p><strong>Name:</strong> <%= @exercise.name %></p>
 <p><strong>Description:</strong> <%= @exercise.description %></p>
-<%= link_to 'Edit exercise', edit_exercise_path(@exercise), type: "button", class:"btn btn-outline-secondary" %>
+<% if @exercise.user_id == current_user.id %>
+  <%= link_to 'Edit exercise', edit_exercise_path(@exercise), type: "button", class: "btn btn-outline-secondary" %>
+<% else %>
+  <p class="text-muted">Shared exercise (read-only)</p>
+<% end %>
